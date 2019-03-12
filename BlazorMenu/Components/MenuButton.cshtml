@@ -52,18 +52,18 @@
 
   public void PreventClicks()
   {
-      Console.WriteLine("PreventClicks");
+      Console.WriteLine($"PreventClicks Called on {ButtonId}");
       Parent?.PreventClicks();
       IgnoreClicks = true;
       StateHasChanged();
   }
   internal void OnClick(UIMouseEventArgs args)
   {
-      Console.WriteLine($"OnClick {IgnoreClicks}");
+      Console.WriteLine($"OnClick Called on {ButtonId} with IgnoreClicks = {IgnoreClicks}");
       if (!IgnoreClicks)
       {
           if (Parent is null)
-              Console.WriteLine("No parent :(");
+              Console.WriteLine($"Button {ButtonId} has no parent.");
           Parent?.PreventClicks();
           OnClickThis(args);
       }
@@ -73,7 +73,7 @@
   //--
   void OnClickThis(UIMouseEventArgs args)
   {
-      Console.WriteLine($"Before MenuButton {ButtonId} Click {Show}");
+      Console.WriteLine($"OnClickThis MenuButton {ButtonId} - Setting Show = {!Show}");
       Show = !Show;
       BtnClick?.Invoke(ButtonId);
   }
