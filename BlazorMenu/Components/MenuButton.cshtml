@@ -7,7 +7,7 @@
     @if (Show)
     {
         <div class="@MenuClass" aria-labelledby="@ButtonId">
-            <CascadingValue Value=this >
+            <CascadingValue Value=this>
                 @MenuContent
             </CascadingValue>
         </div>
@@ -16,65 +16,68 @@
 
 @functions
 {
-  //--
-  [Parameter] protected string ButtonId { get; set; } = "mb" + Guid.NewGuid().ToString().Replace("-", "").Substring(20);
-  [Parameter] protected string ButtonClass { get; set; } = "btn dropdown-toggle ";
-  [Parameter] protected string MenuClass { get; set; } = "dropdown-menu show";
-  [Parameter] protected RenderFragment ButtonContent { get; set; }
-  [Parameter] protected RenderFragment MenuContent { get; set; }
-  [Parameter] protected Action<string> BtnClick { get; set; }
-  [CascadingParameter] MenuButton Parent { get; set; }
-  [Inject] IUriHelper uriHelper { get; set; }
-  //--
-  bool Show = false;
-  bool IgnoreClicks;
-  string MenuStyle;
-  protected override void OnInit()
-  {
-      base.OnInit();
-      uriHelper.OnLocationChanged += OnLocationChanged;
-      if (Parent is null)
-      {
-          MenuStyle = "";
-          ButtonClass = ButtonClass + " btn-secondary";
-      } else
-      {
-          MenuStyle = "dropright";
-          ButtonClass = ButtonClass + " btn-link dropdown-toggle-split";
-      }
-  }
-  private void OnLocationChanged(object sender, string e)
-  {
-      Show = false;
-      IgnoreClicks = false;
-      StateHasChanged();
-  }
+    //--
+    [Parameter] protected string ButtonId { get; set; } = "mb" + Guid.NewGuid().ToString().Replace("-", "").Substring(20);
+    [Parameter] protected string ButtonClass { get; set; } = "btn dropdown-toggle ";
+    [Parameter] protected string MenuClass { get; set; } = "dropdown-submenu show";
+    [Parameter] protected RenderFragment ButtonContent { get; set; }
+    [Parameter] protected RenderFragment MenuContent { get; set; }
+    [Parameter] protected Action<string> BtnClick { get; set; }
+    [CascadingParameter] MenuButton Parent { get; set; }
+    [Inject] IUriHelper uriHelper { get; set; }
+    //--
+    bool Show = false;
+    bool IgnoreClicks;
+    string MenuStyle;
+    string MenuName => this.ToString();
 
-  public void PreventClicks()
-  {
-      Console.WriteLine($"PreventClicks Called on {ButtonId}");
-      Parent?.PreventClicks();
-      IgnoreClicks = true;
-      StateHasChanged();
-  }
-  internal void OnClick(UIMouseEventArgs args)
-  {
-      Console.WriteLine($"OnClick Called on {ButtonId} with IgnoreClicks = {IgnoreClicks}");
-      if (!IgnoreClicks)
-      {
-          if (Parent is null)
-              Console.WriteLine($"Button {ButtonId} has no parent.");
-          Parent?.PreventClicks();
-          OnClickThis(args);
-      }
-      IgnoreClicks = false;
-  }
+    protected override void OnInit()
+    {
+        base.OnInit();
+        uriHelper.OnLocationChanged += OnLocationChanged;
+        if (Parent is null)
+        {
+            MenuStyle = "";
+            ButtonClass = ButtonClass + " btn-secondary";
+        }
+        else
+        {
+            MenuStyle = "dropdown-menu";
+            ButtonClass = ButtonClass + " btn-link dropdown-toggle-split";
+        }
+    }
+    private void OnLocationChanged(object sender, string e)
+    {
+        Show = false;
+        IgnoreClicks = false;
+        StateHasChanged();
+    }
 
-  //--
-  void OnClickThis(UIMouseEventArgs args)
-  {
-      Console.WriteLine($"OnClickThis MenuButton {ButtonId} - Setting Show = {!Show}");
-      Show = !Show;
-      BtnClick?.Invoke(ButtonId);
-  }
+    public void PreventClicks()
+    {
+        Console.WriteLine($"PreventClicks Called on {ButtonId}");
+        Parent?.PreventClicks();
+        IgnoreClicks = true;
+        StateHasChanged();
+    }
+    internal void OnClick(UIMouseEventArgs args)
+    {
+        Console.WriteLine($"OnClick Called on {MenuName} with IgnoreClicks = {IgnoreClicks}");
+        if (!IgnoreClicks)
+        {
+            if (Parent is null)
+                Console.WriteLine($"Button {ButtonId} has no parent.");
+            Parent?.PreventClicks();
+            OnClickThis(args);
+        }
+        IgnoreClicks = false;
+    }
+
+    //--
+    void OnClickThis(UIMouseEventArgs args)
+    {
+        Console.WriteLine($"OnClickThis MenuButton {ButtonId} - Setting Show = {!Show}");
+        Show = !Show;
+        BtnClick?.Invoke(ButtonId);
+    }
 }
